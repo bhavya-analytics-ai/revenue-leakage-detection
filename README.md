@@ -2,7 +2,7 @@
 
 A production-style machine learning system to **detect, validate, quantify, and explain revenue leakage** in subscription / usage-based billing systems.
 
-This project is intentionally built **level by level**, mirroring how real analytics and ML systems evolve in industry — starting from messy data ingestion to explainable financial impact modeling.
+This project is intentionally built **level by level**, mirroring how real analytics and ML systems evolve in industry — starting from messy data ingestion to explainable, reviewable financial impact modeling.
 
 ---
 
@@ -22,6 +22,8 @@ The goal of this system is to:
 2. **Validate them using business context**
 3. **Estimate dollar impact**
 4. **Explain why each case is flagged**
+5. **Categorize recurring leakage patterns**
+6. **Validate robustness under stress**
 
 ---
 
@@ -30,45 +32,60 @@ The goal of this system is to:
 ```
 revenue-leakage-detection/
 │
+├── app/
+│ └── streamlit_app.py
+│
+├── assets/
+│ ├── level8_ui_1.png
+│ └── level8_ui_2.png
+│
 ├── data/
-│   ├── raw/
-│   │   ├── contracts.csv
-│   │   ├── invoices.csv
-│   │   ├── pricing.csv
-│   │   └── usage.csv
-│   │
-│   └── processed/
-│       ├── billing_unified.csv
-│       ├── billing_features.csv
-│       ├── billing_anomaly_scores.csv
-│       ├── validated_leakage_cases.csv
-│       ├── revenue_baseline_estimates.csv
-│       ├── revenue_baseline_invoice_level.csv
-│       └── revenue_torch_estimates.csv
+│ ├── raw/
+│ │ ├── contracts.csv
+│ │ ├── invoices.csv
+│ │ ├── pricing.csv
+│ │ └── usage.csv
+│ │
+│ └── processed/
+│ ├── billing_unified.csv
+│ ├── billing_features.csv
+│ ├── billing_anomaly_scores.csv
+│ ├── validated_leakage_cases.csv
+│ ├── explained_leakage_cases.csv
+│ ├── leakage_patterns.csv
+│ ├── revenue_baseline_estimates.csv
+│ ├── revenue_baseline_invoice_level.csv
+│ └── level9_stress_test_results.csv
 │
 ├── models/
-│   ├── revenue_xgb_baseline.joblib
-│   └── revenue_model_torch.pt
+│ ├── revenue_xgb_baseline.joblib
+│ └── revenue_model_torch.pt
 │
 ├── src/
-│   ├── data/
-│   │   ├── generate_synthetic_data.py
-│   │   ├── load_validate.py
-│   │   └── merge_tables.py
-│   │
-│   ├── features/
-│   │   └── build_features.py
-│   │
-│   ├── models/
-│   │   ├── anomaly_detection.py
-│   │   ├── context_validation.py
-│   │   ├── revenue_baseline_xgb.py
-│   │   ├── revenue_baseline_aggregate.py
-│   │   └── revenue_model_torch.py
-│   │
-│   └── explainability/   # (Level 6)
+│ ├── data/
+│ │ ├── generate_synthetic_data.py
+│ │ ├── load_validate.py
+│ │ └── merge_tables.py
+│ │
+│ ├── features/
+│ │ └── build_features.py
+│ │
+│ ├── models/
+│ │ ├── anomaly_detection.py
+│ │ ├── context_validation.py
+│ │ ├── revenue_baseline_xgb.py
+│ │ ├── revenue_baseline_aggregate.py
+│ │ ├── revenue_model_torch.py
+│ │ ├── run_level7_pattern_discovery.py
+│ │ └── run_level9_stress_test.py
+│ │
+│ └── explainability/
+│ ├── shap_explainer.py
+│ ├── prompt_builder.py
+│ ├── llm_agent.py
+│ └── run_level6_explainability.py
 │
-├── notebooks/            # EDA only
+├── notebooks/ # EDA only
 ├── requirements.txt
 └── README.md
 ```
@@ -79,36 +96,57 @@ revenue-leakage-detection/
 
 ```
 Raw Data (CSV)
-   │
-   ▼
+│
+▼
 [Level 1] Data Ingestion & Validation
-   │   └─ schema checks, joins, missing flags
-   ▼
+│ └─ schema checks, joins, missing flags
+▼
 billing_unified.csv
-   │
-   ▼
+│
+▼
 [Level 2] Feature Engineering
-   │   └─ pricing gaps, usage deviation, customer history
-   ▼
+│ └─ pricing gaps, usage deviation, customer history
+▼
 billing_features.csv
-   │
-   ▼
+│
+▼
 [Level 3] Anomaly Detection (Isolation Forest)
-   │   └─ unsupervised risk scoring
-   ▼
+│ └─ unsupervised risk scoring
+▼
 billing_anomaly_scores.csv
-   │
-   ▼
+│
+▼
 [Level 4] Context-Aware Validation (Rules + Stats)
-   │   └─ contract rules + behavioral checks
-   ▼
+│ └─ contract rules + behavioral checks
+▼
 validated_leakage_cases.csv
-   │
-   ▼
-[Level 5] Revenue Impact Modeling
-   │   └─ expected revenue vs billed
-   ▼
-Invoice-level leakage ($)
+│
+▼
+[Level 5] Revenue Impact Modeling (XGBoost)
+│ └─ expected revenue vs billed
+▼
+revenue_baseline_invoice_level.csv
+│
+▼
+[Level 6] Explainability Layer
+│ └─ SHAP attributions + rule context + narratives
+▼
+explained_leakage_cases.csv
+│
+▼
+[Level 7] Pattern Discovery (Clustering)
+│ └─ systemic leakage categorization
+▼
+leakage_patterns.csv
+│
+▼
+[Level 8] Review Interface (Streamlit)
+│ └─ filter, inspect, export
+▼
+Human Review
+│
+▼
+[Level 9] Stress Testing & Reliability Evaluation
 ```
 
 ---
@@ -117,15 +155,19 @@ Invoice-level leakage ($)
 
 ```
 Billing Features
-      │
-      ├─▶ Isolation Forest  ──▶ Anomaly Score
-      │
-      ├─▶ Rule Engine + Stats ─▶ Validated Leakage
-      │
-      └─▶ XGBoost Regressor  ─▶ Expected Revenue
-                                   │
-                                   ▼
-                         Leakage = Expected − Billed
+│
+├─▶ Isolation Forest ──▶ Anomaly Score
+│
+├─▶ Rule Engine + Stats ─▶ Validated Leakage
+│
+├─▶ XGBoost Regressor ─▶ Expected Revenue
+│ │
+│ ▼
+│ Leakage = Expected − Billed
+│
+├─▶ SHAP Explainability ─▶ Feature Attribution
+│
+└─▶ Clustering (KMeans) ─▶ Leakage Pattern
 ```
 
 ---
