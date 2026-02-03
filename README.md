@@ -27,71 +27,6 @@ The goal of this system is to:
 
 ---
 
-## 📁 Repository Structure (Actual)
-
-```
-revenue-leakage-detection/
-│
-├── app/
-│ └── streamlit_app.py
-│
-├── assets/
-│ ├── level8_ui_1.png
-│ └── level8_ui_2.png
-│
-├── data/
-│ ├── raw/
-│ │ ├── contracts.csv
-│ │ ├── invoices.csv
-│ │ ├── pricing.csv
-│ │ └── usage.csv
-│ │
-│ └── processed/
-│ ├── billing_unified.csv
-│ ├── billing_features.csv
-│ ├── billing_anomaly_scores.csv
-│ ├── validated_leakage_cases.csv
-│ ├── explained_leakage_cases.csv
-│ ├── leakage_patterns.csv
-│ ├── revenue_baseline_estimates.csv
-│ ├── revenue_baseline_invoice_level.csv
-│ └── level9_stress_test_results.csv
-│
-├── models/
-│ ├── revenue_xgb_baseline.joblib
-│ └── revenue_model_torch.pt
-│
-├── src/
-│ ├── data/
-│ │ ├── generate_synthetic_data.py
-│ │ ├── load_validate.py
-│ │ └── merge_tables.py
-│ │
-│ ├── features/
-│ │ └── build_features.py
-│ │
-│ ├── models/
-│ │ ├── anomaly_detection.py
-│ │ ├── context_validation.py
-│ │ ├── revenue_baseline_xgb.py
-│ │ ├── revenue_baseline_aggregate.py
-│ │ ├── revenue_model_torch.py
-│ │ ├── run_level7_pattern_discovery.py
-│ │ └── run_level9_stress_test.py
-│ │
-│ └── explainability/
-│ ├── shap_explainer.py
-│ ├── prompt_builder.py
-│ ├── llm_agent.py
-│ └── run_level6_explainability.py
-│
-├── notebooks/ # EDA only
-├── requirements.txt
-└── README.md
-```
-
----
-
 ## 🔄 End-to-End Data Flow
 
 ```
@@ -405,3 +340,68 @@ Metrics:
 Output:
 
 * level9_stress_test_results.csv
+
+---
+
+## 📁 Repository Structure (Actual)
+
+```
+revenue-leakage-detection/
+│
+├── app/
+│ └── streamlit_app.py
+│
+├── assets/
+│ ├── level8_ui_1.png
+│ └── level8_ui_2.png
+│
+├── data/
+│ ├── raw/
+│ │ ├── contracts.csv
+│ │ ├── invoices.csv
+│ │ ├── pricing.csv
+│ │ └── usage.csv
+│ │
+│ └── processed/
+│ ├── billing_unified.csv
+│ ├── billing_features.csv
+│ ├── billing_anomaly_scores.csv
+│ ├── validated_leakage_cases.csv
+│ ├── explained_leakage_cases.csv
+│ ├── leakage_patterns.csv
+│ ├── revenue_baseline_estimates.csv
+│ ├── revenue_baseline_invoice_level.csv
+│ └── level9_stress_test_results.csv
+│
+├── models/
+│ ├── revenue_xgb_baseline.joblib
+│ └── revenue_model_torch.pt
+│
+├── src/
+│ ├── data/
+│ │ ├── generate_synthetic_data.py
+│ │ ├── load_validate.py
+│ │ └── merge_tables.py
+│ │
+│ ├── features/
+│ │ └── build_features.py
+│ │
+│ ├── models/
+│ │ ├── anomaly_detection.py
+│ │ ├── context_validation.py
+│ │ ├── revenue_baseline_xgb.py
+│ │ ├── revenue_baseline_aggregate.py
+│ │ ├── revenue_model_torch.py
+│ │ ├── run_level7_pattern_discovery.py
+│ │ └── run_level9_stress_test.py
+│ │
+│ └── explainability/
+│ ├── shap_explainer.py
+│ ├── prompt_builder.py
+│ ├── llm_agent.py
+│ └── run_level6_explainability.py
+│
+├── notebooks/ # EDA only
+├── requirements.txt
+└── README.md
+```
